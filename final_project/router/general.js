@@ -1,4 +1,5 @@
 const express = require('express');
+const axios = require('axios');
 let books = require("./booksdb.js");
 let isValid = require("./auth_users.js").isValid;
 let users = require("./auth_users.js").users;
@@ -66,4 +67,32 @@ public_users.get('/review/:isbn', function (req, res) {
   return res.status(200).json(books[isbn].reviews);
 });
 
+// Axios helpers: retrieve book details from the API using async/await with Axios.
+// BASE_URL points at the running server; override with the BASE_URL environment variable.
+const BASE_URL = process.env.BASE_URL || 'http://localhost:5000';
+
+// Get all books (async/await).
+const getAllBooks = async () => {
+  const response = await axios.get(`${BASE_URL}/`);
+  return response.data;
+};
+
+// Get book details by ISBN (Promise chain).
+const getBookByISBN = (isbn) =>
+  axios.get(`${BASE_URL}/isbn/${isbn}`).then((response) => response.data);
+
+// Get books by author (async/await).
+const getBooksByAuthor = async (author) => {
+  const response = await axios.get(`${BASE_URL}/author/${encodeURIComponent(author)}`);
+  return response.data;
+};
+
+// Get books by title (Promise chain).
+const getBooksByTitle = (title) =>
+  axios.get(`${BASE_URL}/title/${encodeURIComponent(title)}`).then((response) => response.data);
+
 module.exports.general = public_users;
+module.exports.getAllBooks = getAllBooks;
+module.exports.getBookByISBN = getBookByISBN;
+module.exports.getBooksByAuthor = getBooksByAuthor;
+module.exports.getBooksByTitle = getBooksByTitle;
