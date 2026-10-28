@@ -26,7 +26,7 @@ regd_users.post("/login", (req,res) => {
   }
   const accessToken = jwt.sign({ data: username }, "access", { expiresIn: 60 * 60 });
   req.session.authorization = { accessToken, username };
-  return res.status(200).json({message: "Customer successfully logged in", accessToken});
+  return res.status(200).json({message: "Login successful!", accessToken});
 });
 
 // Add or modify a book review. The review text is sent as ?review=...

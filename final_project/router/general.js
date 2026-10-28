@@ -67,29 +67,47 @@ public_users.get('/review/:isbn', function (req, res) {
   return res.status(200).json(books[isbn].reviews);
 });
 
-// Axios helpers: retrieve book details from the API using async/await with Axios.
+// Axios helpers: retrieve book details from the API with Axios.
 // BASE_URL points at the running server; override with the BASE_URL environment variable.
 const BASE_URL = process.env.BASE_URL || 'http://localhost:5000';
 
-// Get all books (async/await).
+// Turns an Axios failure into a readable error instead of an unhandled rejection.
+const requestError = (error, what) => {
+  const status = error.response ? error.response.status : 'no response';
+  return new Error(`Request for ${what} failed (${status}): ${error.message}`);
+};
+
+// Get all books (async/await with try/catch).
 const getAllBooks = async () => {
-  const response = await axios.get(`${BASE_URL}/`);
-  return response.data;
+  try {
+    const response = await axios.get(`${BASE_URL}/`);
+    return response.data;
+  } catch (error) {
+    throw requestError(error, 'all books');
+  }
 };
 
-// Get book details by ISBN (Promise chain).
+// Get book details by ISBN (promise chain with catch).
 const getBookByISBN = (isbn) =>
-  axios.get(`${BASE_URL}/isbn/${isbn}`).then((response) => response.data);
+  axios.get(`${BASE_URL}/isbn/${isbn}`)
+    .then((response) => response.data)
+    .catch((error) => { throw requestError(error, `ISBN ${isbn}`); });
 
-// Get books by author (async/await).
+// Get books by author (async/await with try/catch).
 const getBooksByAuthor = async (author) => {
-  const response = await axios.get(`${BASE_URL}/author/${encodeURIComponent(author)}`);
-  return response.data;
+  try {
+    const response = await axios.get(`${BASE_URL}/author/${encodeURIComponent(author)}`);
+    return response.data;
+  } catch (error) {
+    throw requestError(error, `author ${author}`);
+  }
 };
 
-// Get books by title (Promise chain).
+// Get books by title (promise chain with catch).
 const getBooksByTitle = (title) =>
-  axios.get(`${BASE_URL}/title/${encodeURIComponent(title)}`).then((response) => response.data);
+  axios.get(`${BASE_URL}/title/${encodeURIComponent(title)}`)
+    .then((response) => response.data)
+    .catch((error) => { throw requestError(error, `title ${title}`); });
 
 module.exports.general = public_users;
 module.exports.getAllBooks = getAllBooks;
